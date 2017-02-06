@@ -1,0 +1,123 @@
+﻿@model CodeTest.ViewModels.ProductAndState
+@{
+
+    ViewBag.Title = "Products Selection Home";
+    var lstStates = new SelectList(Model.States, "StateId", "StateName").ToList();
+    lstStates.Insert(0, new SelectListItem { Text = "select a State", Value = "" });
+}
+
+<div class="h3">
+    <p class="lead">Select your quantities for each product, select the state then click the calculate button for Total amount.</p>
+</div>
+
+
+<div class="container">
+    <div class="row">
+        <table class="table table-hover" id="tblProducts">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Price</th>
+                    <th hidden>OnSale</th>
+                    <th>Sale Price</th>
+                    <th>Qty</th>
+                    <th></th>
+                </tr>
+            </thead>
+
+            @foreach (var product in Model.Products)
+            {
+                <tbody>
+                    <tr>
+                        <td class="col-sm-8 col col-md-6">
+                            <div class="col-sm-10">
+                                <h4 class="nomargin">@product.ProductName</h4>
+                            </div>
+                        </td>
+                        <td data-th="Price">@Math.Round(product.Price, 2)</td>
+                        <td data-th="OnSale" hidden><label name="lblOnSale"> @(product.IsDiscount ? (@product.Price * 10 / 100) : 0) </label> </td>
+                        <td data-th="SalePrice"><label name="lblSalePrice"> @Math.Round((product.IsDiscount ? (@product.Price * 90 / 100) : (@product.Price)), 2) </label>  </td>
+                        <td data-th="Qty">
+                            <input type="number" min="0" class="form-control-static text-center" style="align-content:center; width:30px" value="0" name="txtbQnty">
+                        </td>
+                    </tr>
+                </tbody>
+            }
+
+        </table>
+
+    </div>
+
+    <div class="text-right">
+        <label for="state">Select State</label>
+        @Html.DropDownListFor(model => model.States, lstStates, new { @onchange = "getTaxForStatefunc(this.value)", style = "width:200px;" })
+        @Html.Hidden("Tax")
+        <input type="submit" id="btncalculate" name="btncalculate" value="Calculate" class="btn btn-default" />
+    </div>
+    <div class="text-right">
+        <label id="spnErrorMessage" class="label-warning label text-center"></label>
+        <label id="spnTotalPrice" class="text-center text-info"></label>
+    </div>
+
+    <script>
+
+        function getTaxForStatefunc(val) {
+            $.ajax({
+                url: '@Url.Action("GetState", "ProductAndState")',
+                type: 'POST',
+                contentType: 'application/json; charset=utf-8',
+                data: window.JSON.stringify({ id: val }),
+                success: function (response) {
+                    $('#Tax').val(response.Tax);
+                },
+                error: function (response) {
+                    $('#Tax').val("");
+                }
+            });
+        }
+
+        $(document).ready(function () {
+
+            $("#tblProducts tr").each(function (i, row) {
+                var $row = $(row);
+                var $OnSale = $row.find('label[name*="lblOnSale"]');
+                var $SalePrice = $row.find('label[name*="lblSalePrice"]');
+                if ($OnSale.text() != "") {
+                    if ($OnSale.text() != 0) {
+                        $SalePrice.css("color", "Red");
+                    }
+                    else {
+                        $SalePrice.css("color", "black");
+                    }
+                }
+            });
+
+
+            $("#btncalculate").click(function () {
+                var Total = 0;
+                if ($("#Tax").val() != "") {
+                    $("#tblProducts tr").each(function (i, row) {
+                        var $row = $(row);
+                        var $Quantity = $row.find('input[name*="txtbQnty"]');
+                        var $SalePrice = $row.find('label[name*="lblSalePrice"]');
+                        if ($Quantity.val() != null && $SalePrice.text() != null) {
+                            var Price = parseFloat($Quantity.val()) * parseFloat($SalePrice.text());
+                            Total = parseFloat(Total) + parseFloat(Price);
+                        }
+                    })
+                    var Tax = parseFloat($("#Tax").val()) * parseFloat(Total) / 100;
+                    $("#spnTotalPrice").html("Sale Amount: $" + parseFloat(Total).toFixed(2) + "<br>" + "Tax Amount: $" + parseFloat(Tax).toFixed(2) + "<br>" + "Total Amount: $" + parseFloat(parseFloat(Total) + parseFloat(Tax)).toFixed(2));
+                    $("#spnErrorMessage").html("");
+                }
+                else {
+                    $("#spnErrorMessage").html("Please select a state to calculate price");
+                    $("#spnTotalPrice").html("");
+                }
+                $("#Tax").val() = "";
+            })
+        })
+
+    </script>
+
+
+</div>

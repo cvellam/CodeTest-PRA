@@ -1,0 +1,7 @@
+C:\Projects\VS2015\CodeTest\CodeTest.Repository\bin\Debug\CodeTest.Repository.dll
+C:\Projects\VS2015\CodeTest\CodeTest.Repository\bin\Debug\CodeTest.Repository.pdb
+C:\Projects\VS2015\CodeTest\CodeTest.Repository\bin\Debug\CodeTest.Data.dll
+C:\Projects\VS2015\CodeTest\CodeTest.Repository\bin\Debug\CodeTest.Data.pdb
+C:\Projects\VS2015\CodeTest\CodeTest.Repository\obj\Debug\CodeTest.Repository.csprojResolveAssemblyReference.cache
+C:\Projects\VS2015\CodeTest\CodeTest.Repository\obj\Debug\CodeTest.Repository.dll
+C:\Projects\VS2015\CodeTest\CodeTest.Repository\obj\Debug\CodeTest.Repository.pdb
